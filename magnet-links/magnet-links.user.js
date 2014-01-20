@@ -3,7 +3,7 @@
 // @description    Finds all magnet URLs and displays them prominently
 // @namespace      http://patik.com/code/user-scripts/
 // @include        *
-// @version        1.0.0.20140112
+// @version        1.0.1.20140120
 // ==/UserScript==
 
 (function _magnet_links() {
@@ -47,16 +47,27 @@
          * Add all found anchors to the display
          */
         displayAnchors = function displayAnchors() {
+            var knownURLs = [];
+
             magnetAnchors.forEach(function (magnet) {
-                var listItem = document.createElement('li'),
-                    anchor = document.createElement('a'),
-                    input = document.createElement('input');
+                var listItem, anchor, input;
+
+                // Make sure this URL is unique
+                if (knownURLs.indexOf(magnet.href) !== -1) {
+                    return false;
+                }
+
+                listItem = document.createElement('li');
+                anchor = document.createElement('a');
+                input = document.createElement('input');
 
                 anchor.href = magnet.href;
                 anchor.innerHTML = magnet.innerText || magnet.getAttribute('title') || 'Link';
 
                 input.type = 'url';
                 input.value = magnet.href;
+
+                knownURLs.push(magnet.href);
 
                 // Create list item
                 listItem.appendChild(anchor);
