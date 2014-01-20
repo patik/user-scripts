@@ -7,7 +7,7 @@
 // ==/UserScript==
 
 (function _magnet_links() {
-    var linkList = null,    // Display list that holds the links
+    var linkList = '',    // Display list that holds the links
         magnetAnchors = [], // List of all found P2P anchors
 
         // Run the plugin
@@ -15,8 +15,8 @@
             findAnchors();
 
             if (magnetAnchors.length) {
-                createDisplay();
                 displayAnchors();
+                createDisplay();
             }
         },
 
@@ -50,32 +50,17 @@
             var knownURLs = [];
 
             magnetAnchors.forEach(function (magnet) {
-                var listItem, anchor, input;
-
                 // Make sure this URL is unique
-                if (knownURLs.indexOf(magnet.href) !== -1) {
-                    return false;
-                }
-
-                listItem = document.createElement('li');
-                anchor = document.createElement('a');
-                input = document.createElement('input');
-
-                anchor.href = magnet.href;
-                anchor.innerHTML = magnet.innerText || magnet.getAttribute('title') || 'Link';
-
-                input.type = 'url';
-                input.value = magnet.href;
+                // if (knownURLs.indexOf(magnet.href) !== -1) {
+                //     return false;
+                // }
 
                 knownURLs.push(magnet.href);
 
                 // Create list item
-                listItem.appendChild(anchor);
-                listItem.appendChild(document.createElement('br'));
-                listItem.appendChild(input);
-
-                // Add list item to the list
-                linkList.appendChild(listItem);
+                linkList += '<li><a href="' + magnet.href + '">';
+                linkList += magnet.innerText || magnet.getAttribute('title') || 'Link';
+                linkList += '</a><br><input type="url" value="' + magnet.href + '"></li>';
             });
         },
 
@@ -83,71 +68,84 @@
          * Create a display area to hold the links
          */
         createDisplay = function _createDisplay() {
-            var container = document.createElement('div'),
-                cssRules = '',
+            var iframe = document.createElement('iframe'),
+                html = '',
+                parentRules = '',
+                iframeRules = '<style>',
                 style;
 
-            // Outer container
-            container.id = 'magnet-link-list';
+            html += '<div>';
+            html += '<h1>Magnet Links</h1>';
+            html += '<ul>';
+            html += linkList;
+            html += '</ul></div>';
 
-            cssRules += '#magnet-link-list {';
-            cssRules +=     'position: absolute;';
-            cssRules +=     'top: 1em;';
-            cssRules +=     'right: 1em;';
-            cssRules +=     'width: 20em;';
-            cssRules +=     'minHeight: 4em;';
-            cssRules +=     'padding: 0.75em;';
-            cssRules +=     'background-color: #fff;';
-            cssRules +=     'z-index: 10001;';
-            cssRules +=     'border: 1px solid #777;';
-            cssRules +=     'box-shadow: 1px 1px 6px #aaa;';
-            cssRules +=     'font: 16px/1.4 "Open Sans", "Helvetica Neue", sans-serif;';
-            cssRules +=     'color: #444;';
-            cssRules += '}';
+            // Outer container
+            parentRules += '#magnet-link-list {';
+            parentRules +=     'position: absolute;';
+            parentRules +=     'top: 1em;';
+            parentRules +=     'right: 1em;';
+            parentRules +=     'width: 20em;';
+            parentRules +=     'min-height: 5em;';
+            parentRules +=     'background-color: #fff;';
+            parentRules +=     'z-index: 10001;';
+            parentRules +=     'border: 1px solid #777;';
+            parentRules +=     'box-shadow: 1px 1px 6px #aaa;';
+            parentRules += '}';
+
+            // iframe
+            iframeRules += 'body {';
+            iframeRules +=     'padding: 0.75em;';
+            iframeRules +=     'background-color: #fff;';
+            iframeRules +=     'font: 16px/1.4 "Open Sans", "Helvetica Neue", sans-serif;';
+            iframeRules +=     'color: #444;';
+            iframeRules += '}';
 
             // Header
-            container.innerHTML = '<h1>Magnet Links</h1>';
-
-            cssRules += '#magnet-link-list h1 {';
-            cssRules +=     'font: 20px/1.4 "Open Sans", "Helvetica Neue", sans-serif;';
-            cssRules +=     'margin-top: 0em;';
-            cssRules +=     'text-align: center;';
-            cssRules += '}';
+            iframeRules += 'h1 {';
+            iframeRules +=     'font-size: 18px;';
+            iframeRules +=     'margin-top: 0em;';
+            iframeRules +=     'text-align: center;';
+            iframeRules += '}';
 
             // List of links
-            linkList = document.createElement('ul');
+            iframeRules += 'ul {';
+            iframeRules +=     'list-style: none outside none;';
+            iframeRules +=     'margin-left: 0;';
+            iframeRules +=     '-webkit-padding-start: 0;';
+            iframeRules +=     '-moz-padding-start: 0;';
+            iframeRules += '}';
 
-            cssRules += '#magnet-link-list ul {';
-            cssRules +=     'list-style: none outside none;';
-            cssRules +=     'margin-left: 0;';
-            cssRules +=     '-webkit-padding-start: 0;';
-            cssRules +=     '-moz-padding-start: 0;';
-            cssRules += '}';
+            iframeRules += 'li {';
+            iframeRules +=     'margin-bottom: 1em';
+            iframeRules += '}';
 
-            cssRules += '#magnet-link-list li {';
-            cssRules +=     'margin-bottom: 1em';
-            cssRules += '}';
+            iframeRules += 'li:last-child {';
+            iframeRules +=     'margin-bottom: 0';
+            iframeRules += '}';
 
-            cssRules += '#magnet-link-list li:last-child {';
-            cssRules +=     'margin-bottom: 0';
-            cssRules += '}';
+            iframeRules += 'input {';
+            iframeRules +=     'width: 100%';
+            iframeRules += '}';
 
-            cssRules += '#magnet-link-list input {';
-            cssRules +=     'width: 100%';
-            cssRules += '}';
+            iframeRules += '*, *:before, *:after {';
+            iframeRules +=     'box-sizing: border-box;';
+            iframeRules += '}';
 
-            cssRules += '#magnet-link-list, #magnet-link-list * {';
-            cssRules +=     'box-sizing: border-box;';
-            cssRules += '}';
+            iframeRules += '</style>';
 
-            // Add elements to the document
+            // Add styles to the document
             style = document.createElement('style');
             style.type = 'text/css';
-            style.innerHTML = cssRules;
+            style.innerHTML = parentRules;
             document.getElementsByTagName('head')[0].appendChild(style);
 
-            container.appendChild(linkList);
-            document.body.appendChild(container);
+            // Add elements to the document
+            iframe.id = 'magnet-link-list';
+            iframe.src = 'data:text/html;charset=utf-8,' + encodeURI(iframeRules + html);
+            iframe.setAttribute('seamless', 'seamless');
+
+            document.body.appendChild(iframe);
         };
 
     // Run
