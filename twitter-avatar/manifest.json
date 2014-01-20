@@ -1,0 +1,14 @@
+{
+    "name": "Twitter Avatar in Menu",
+    "version": "2.1",
+    "description": "See which account you're logged in under at a quick glance",
+    "default_locale": "en",
+    "manifest_version": 2,
+    "content_scripts": [
+        {
+            "matches": ["*://twtter.com/*", "*://*.twtter.com/*"],
+            "js": ["twitter-avatar.user.js"],
+            "run_at": "document_end"
+        }
+    ]
+}

@@ -3,7 +3,7 @@
 // @description    Finds all magnet URLs and displays them prominently
 // @namespace      http://patik.com/code/user-scripts/
 // @include        *
-// @version        1.0.1.20140120
+// @version        1.1.0.20140120
 // ==/UserScript==
 
 (function _magnet_links() {
