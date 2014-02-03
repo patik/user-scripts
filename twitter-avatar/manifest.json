@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Twitter Menu Avatar",
-    "version": "2.1.1",
+    "version": "2.2.0",
     "description": "Quickly verify which account you're logged into on Twitter.com",
     "content_scripts": [
         {
