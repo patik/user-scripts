@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Magnet Link Finder",
-    "version": "1.1",
+    "version": "1.1.1",
     "description": "Finds all magnet URLs and displays them prominently",
     "content_scripts": [
         {

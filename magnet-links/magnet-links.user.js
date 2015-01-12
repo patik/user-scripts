@@ -3,7 +3,7 @@
 // @description    Finds all magnet URLs and displays them prominently
 // @namespace      http://patik.com/code/user-scripts/
 // @include        *
-// @version        1.1.0.20140120
+// @version        1.1.1.20150111
 // ==/UserScript==
 
 (function _magnet_links() {
@@ -32,8 +32,8 @@
             if (hostURL.indexOf('thepiratebay') !== -1 || hostURL.indexOf('baymirror.com') !== -1) {
                 magnetAnchors.push(document.querySelector('.download ' + magSelector));
             }
-            // Kickass.to
-            if (hostURL.indexOf('kickass.to') !== -1) {
+            // Kickass.to, kickass.so, etc
+            else if (hostURL.indexOf('kickass.') !== -1) {
                 magnetAnchors.push(document.querySelector('.magnetlinkButton'));
             }
             // Other sites
@@ -50,17 +50,30 @@
             var knownURLs = [];
 
             magnetAnchors.forEach(function (magnet) {
-                // Make sure this URL is unique
-                // if (knownURLs.indexOf(magnet.href) !== -1) {
-                //     return false;
-                // }
+                var linkText;
 
+                // Make sure this URL is unique
+                if (knownURLs.indexOf(magnet.href) !== -1) {
+                    return false;
+                }
+
+                // Store the URL
                 knownURLs.push(magnet.href);
 
+                // Get the link text
+                linkText = magnet.textContent.trim() || magnet.getAttribute('title');
+
+                // Replace non-sensical link text, including unicode characters meant to be used with icon fonts
+                if (!/\w{2,}/.test(linkText)) {
+                    linkText = 'Link';
+                }
+
                 // Create list item
-                linkList += '<li><a href="' + magnet.href + '">';
-                linkList += magnet.innerText || magnet.getAttribute('title') || 'Link';
-                linkList += '</a><br><input type="url" value="' + magnet.href + '"></li>';
+                linkList += '<li>';
+                linkList +=     '<a href="' + magnet.href + '">' + linkText + '</a>';
+                linkList +=     '<br>';
+                linkList +=     '<input type="url" value="' + magnet.href + '">';
+                linkList += '</li>';
             });
         },
 
@@ -71,16 +84,18 @@
             var iframe = document.createElement('iframe'),
                 html = '',
                 parentRules = '',
-                iframeRules = '<style>',
+                iframeRules = '',
                 style;
 
             html += '<div>';
-            html += '<h1>Magnet Links</h1>';
-            html += '<ul>';
-            html += linkList;
-            html += '</ul></div>';
+            html +=     '<h1>Magnet Links</h1>';
+            html +=     '<ul>';
+            html +=         linkList;
+            html +=     '</ul>';
+            html += '</div>';
 
-            // Outer container
+            // Outer container styles
+            // These go in the parent document (i.e. the site being viewed)
             parentRules += '#magnet-link-list {';
             parentRules +=     'position: absolute;';
             parentRules +=     'top: 1em;';
@@ -93,7 +108,10 @@
             parentRules +=     'box-shadow: 1px 1px 6px #aaa;';
             parentRules += '}';
 
-            // iframe
+            // Iframe rules
+            // These are embedded in the iframe since they apply to elements within it
+
+            // Iframe itself
             iframeRules += 'body {';
             iframeRules +=     'padding: 0.75em;';
             iframeRules +=     'background-color: #fff;';
@@ -132,7 +150,8 @@
             iframeRules +=     'box-sizing: border-box;';
             iframeRules += '}';
 
-            iframeRules += '</style>';
+            // Prepend iframe styles to the HTML
+            html = '<style>' + iframeRules + '</style>' + html;
 
             // Add styles to the document
             style = document.createElement('style');
@@ -140,11 +159,12 @@
             style.innerHTML = parentRules;
             document.getElementsByTagName('head')[0].appendChild(style);
 
-            // Add elements to the document
+            // Add elements to the iframe
             iframe.id = 'magnet-link-list';
-            iframe.src = 'data:text/html;charset=utf-8,' + encodeURI(iframeRules + html);
+            iframe.src = 'data:text/html;charset=utf-8,' + encodeURI(html);
             iframe.setAttribute('seamless', 'seamless');
 
+            // Add iframe to the document
             document.body.appendChild(iframe);
         };
 
