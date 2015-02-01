@@ -4,8 +4,8 @@
 // @namespace      http://patik.com/code/user-scripts/
 // @match          https://torrentz.eu/*
 // @match          http://torrentz.eu/*
-// @version        1.0.1
-// @lastupdated    2014-10-20
+// @version        1.0.2
+// @lastupdated    2015-02-01
 // ==/UserScript==
 
 (function _torrentz_customized() {
@@ -18,7 +18,7 @@
 
         // Auto navigate to kickass.to
         linkTitle = a.querySelector('.u');
-        if (linkTitle && /\bkickass\.to\b/i.test(linkTitle.innerHTML)) {
+        if (linkTitle && /\bkickass\.\w\w\b/i.test(linkTitle.innerHTML)) {
             window.location.href = a.href;
         }
     });
